@@ -1,10 +1,14 @@
 import React, {Component} from 'react';
-
+import {Redirect} from 'react-router-dom'
+import {reqLogin} from '../../api'
+import memoryUtils from "../../utils/memoryUtils";
+import storageUtils from "../../utils/storageUtils";
 import {
     Form,
     Input,
     Icon,
-    Button
+    Button,
+    message
 } from 'antd'
 import logo from './images/logo.png'
 import './login.less'
@@ -20,6 +24,9 @@ class Login extends Component{
         4. a-zA-Z0-10_
      */
 
+    /*
+        await & async
+     */
     login = (e) =>{
         e.preventDefault()
 
@@ -27,9 +34,19 @@ class Login extends Component{
             if (!err){
                 // ajax here
                 const {username, password} = values
-                console.log('Submit ', username, password)
+                const response = await reqLogin(username, password)
+
+                if(response.status === 0){
+                    message.success('Login Success', 2)
+                    const user = response.data
+                    storageUtils.saveUser(user)
+                    memoryUtils.user = user
+                    this.props.history.replace('/')
+                }else {
+                    message.error(response.msg)
+                }
             }else {
-                // console.log(err)
+                console.log(err)
             }
         })
     }
@@ -58,6 +75,10 @@ class Login extends Component{
 
 
     render(){
+        // check if login
+        if (memoryUtils.user && memoryUtils.user._id) {
+            return <Redirect to='/'/>
+        }
 
         const {getFieldDecorator} = this.props.form;
 
@@ -81,6 +102,7 @@ class Login extends Component{
                                     { max: 12, message: 'Username should less than 12'},
                                     { pattern: /^[a-zA-Z0-9_]+$/, message: 'Username should be consisted of letter, number and -'}
                                     ],
+                                initialValue: 'admin'
                             })(
                                 <Input
                                     prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
@@ -107,7 +129,7 @@ class Login extends Component{
                             <Button type="primary" htmlType="submit" className="login-form-button">
                                 Log in
                             </Button>
-                            Or <a href="">register now!</a>
+                            Or <a href="#">register now!</a>
                         </Form.Item>
 
                     </Form>
