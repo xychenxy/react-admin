@@ -46,7 +46,7 @@ class Login extends Component{
                     message.error(response.msg)
                 }
             }else {
-                console.log(err)
+                // console.log(err)
             }
         })
     }

@@ -51,6 +51,7 @@ class LeftNav extends Component{
      */
     getMenuNodes = (menuList) =>{
 
+        // get the current path
         const path = this.props.location.pathname
 
         return menuList.reduce((pre, item)=>{
@@ -78,11 +79,12 @@ class LeftNav extends Component{
                         {this.getMenuNodes(item.children)}
                     </SubMenu>
                 ))
-                // const cItem = item.children.find(cItem => path.indexOf(cItem.key)===0)
-                // if (cItem) {
-                //     this.openKey = item.key
-                // }
-                // 如果当前请求路由与当前菜单的某个子菜单的 key 匹配, 将菜单的 key 保存为 openKey
+
+                // item.children is also an object
+                // if request router is an item of submenu, set the key as openKey
+                // which means when you refresh page, the selected menu still open
+                // The find() method returns the value of the first element in an array that pass a test (provided as a function).
+                // cItem is each object
                 if(item.children.find(cItem => path.indexOf(cItem.key)===0)) {
                     this.openKey = item.key
                 }
@@ -104,14 +106,11 @@ class LeftNav extends Component{
         const selectKey = this.props.location.pathname
         const openKey = this.openKey
 
-        console.log('openKey',openKey)
-        console.log('selectKey',selectKey)
-
         return(
             <div>
-                <div  className="left-nav">
+                <div className="left-nav">
                     <Link to="/"  className="left-nav-header">
-                        <img src={logo} alt="logo"/>
+                        {/*<img src={logo} alt="logo"/>*/}
                         <h1>XY STUDIO</h1>
                     </Link>
 

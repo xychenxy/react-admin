@@ -25,6 +25,16 @@ const {
 
 
 export default class Admin extends Component{
+
+    state = {
+        collapsed: false,
+    };
+
+    onCollapse = collapsed => {
+        console.log(collapsed);
+        this.setState({ collapsed });
+    };
+
     render(){
 
         const user = memoryUtils.user
@@ -34,12 +44,12 @@ export default class Admin extends Component{
         }
         return(
             <Layout style={{height:'100%'}}>
-                <Sider>
+                <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse}>
                     <LeftNav/>
                 </Sider>
                 <Layout>
-                    <Header>Header</Header>
-                    <Content style={{backgroundColor: 'white'}}>
+                    <Header/>
+                    <Content style={{margin:'20px 20px 0px',backgroundColor: 'white'}}>
                         <Switch>
                             <Route path='/home' component={Home}/>
                             <Route path='/category' component={Category}/>
