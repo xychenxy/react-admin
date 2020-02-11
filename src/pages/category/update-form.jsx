@@ -12,6 +12,7 @@ class UpdateForm extends Component{
         setForm: PropTypes.func.isRequired
     }
 
+    // the form convey children to father
     componentWillMount() {
         this.props.setForm(this.props.form)
     }
@@ -26,14 +27,19 @@ class UpdateForm extends Component{
                 <Form.Item>
                     {
                         getFieldDecorator(
-                            'categoryName',{
-                                initialValue:categoryName
+                            'categoryName',
+                            {
+                                initialValue:categoryName,
+                                rules:[
+                                    {required:true, message:'Please enter category name'}
+                                    ]
                             }
                         )(
                             <Input placeholder='Please enter category name'></Input>
                         )
                     }
                 </Form.Item>
+
             </Form>
         )
     }

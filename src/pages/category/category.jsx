@@ -16,20 +16,21 @@ import UpdateForm from "./update-form"
 export default class Category extends Component{
 
     state = {
-        categories:[],
-        subcategories:[],
+        categories:[], // level 1
+        subcategories:[], // level 2
         parentId:'0',
         parentName:'',
-        loading:false,
-        showStatus:0 // if showing dialogue, 0 none, 1 show add, 2 show update
+        loading:false, // before getting data, it is true (showing circle)
+        showStatus:0 // 0 none, 1 show add, 2 show update
     }
 
     /*
-
+        This method is used to get level 1 or 2 category
      */
-    getCategories = async () =>{
+    getCategories = async (parentId) =>{
+        // loading is true that means showing a circle
         this.setState({loading:true})
-        const {parentId} = this.state
+        parentId = parentId || this.state.parentId
         const result = await reqCategories(parentId)
         this.setState({loading:false})
 
@@ -56,6 +57,9 @@ export default class Category extends Component{
         })
     }
 
+    /*
+        show level 2 category
+     */
     showSubcategories = (category) =>{
         this.setState({
             parentId:category._id,
@@ -91,26 +95,69 @@ export default class Category extends Component{
 
     addCategory = () =>{
 
-    }
+        // valid form
+        this.form.validateFields(async (err, values)=>{
+            if(!err){
+                // 1. hide Modal
+                this.setState({
+                    showStatus : 0
+                })
 
-    updateCategory = async () =>{
-        this.setState({
-            showStatus : 0
+                // 2. send request to add category
+                const parentId = this.form.getFieldValue('parentId')
+                const categoryName = this.form.getFieldValue('categoryName')
+                this.form.resetFields()
+                const result = await reqAddCategory(parentId, categoryName)
+
+                // 3. re-show category table
+                if(result.status===0){
+                    if (parentId===this.state.parentId){
+                        this.getCategories()
+                    }else if (parentId === '0'){
+                        this.getCategories('0')
+                    }
+
+                    message.success("Add Success")
+                }else {
+                    message.error("Add Fail")
+                }
+            }else {
+                message.error("Please enter category name")
+            }
         })
 
-        const categoryId = this.category._id
-        const categoryName = this.form.getFieldValue('categoryName')
+    }
 
-        this.form.resetFields()
+    updateCategory =  () =>{
 
-        const result = await reqUpdateCategory(categoryId, categoryName)
+        // valid form
+        this.form.validateFields(async (err, values)=>{
+            if(!err){
+                // 1. hide the modal
+                this.setState({
+                    showStatus : 0
+                })
 
-        if(result.status===0){
-            this.getCategories()
-            message.success('Update Success');
-        }else {
-            message.error('Update Fail');
-        }
+                // 2. send request to update category
+                const categoryId = this.category._id
+                // values also have categoryName, depends on you
+                const categoryName = this.form.getFieldValue('categoryName')
+                this.form.resetFields()
+                const result = await reqUpdateCategory(categoryId, categoryName)
+
+                // 3. re-show category
+                if(result.status===0){
+                    this.getCategories()
+                    message.success('Update Success');
+                }else {
+                    message.error('Update Fail');
+                }
+            }else {
+                message.error("Please enter category name")
+            }
+        })
+
+
 
     }
 
@@ -127,6 +174,10 @@ export default class Category extends Component{
             {
                 title: 'Operation',
                 width: 300,
+                /*
+                    the below category means each row values, of course,
+                    you can change category to another name you like
+                 */
                 render: (category)=>(
                     <span>
                         <LinkButton onClick={()=>this.showUpdate(category)}>Update</LinkButton>
@@ -187,7 +238,7 @@ export default class Category extends Component{
                     onOk={this.addCategory}
                     onCancel={this.handleCancel}
                 >
-                    <AddForm/>
+                    <AddForm categories={categories} parentId={parentId} setForm={(form)=>{this.form=form}}/>
                 </Modal>
 
                 <Modal

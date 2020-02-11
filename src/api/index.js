@@ -30,3 +30,15 @@ export const reqWeather = (city) =>{
 export const reqCategories = (parentId) => ajax('/manage/category/list', {parentId})
 export const reqAddCategory = (parentId, categoryName) => ajax('/manage/category/add',{parentId, categoryName}, 'POST')
 export const reqUpdateCategory = (categoryId, categoryName) => ajax('/manage/category/update', {categoryId, categoryName}, 'POST')
+
+// product list
+export const reqProducts = (pageNum, pageSize) => ajax('/manage/product/list', {pageNum, pageSize})
+export const reqUpdateStatus = (productId, status) => ajax( '/manage/product/updateStatus', {productId, status}, 'POST')
+export const reqAddOrUpdateProduct = (product) => ajax( '/manage/product/' + ( product._id?'update':'add'), product, 'POST')
+//searchType: productName/productDesc
+export const reqSearchProducts = ({pageNum, pageSize, searchName, searchType}) => ajax('/manage/product/search',
+    {
+        pageNum,
+        pageSize,
+        [searchType]: searchName,
+    })

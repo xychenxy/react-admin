@@ -37,11 +37,13 @@ export default class Admin extends Component{
 
     render(){
 
+        // check if login
         const user = memoryUtils.user
         if(!user || !user._id){
             // redirect to login page
             return <Redirect to='/login/' />
         }
+
         return(
             <Layout style={{height:'100%'}}>
                 <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse}>

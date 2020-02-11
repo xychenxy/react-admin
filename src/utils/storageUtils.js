@@ -7,6 +7,7 @@ export default {
         store.set(USER_KEY, user)
     },
     getUser(){
+        // as return value maybe null, so we need to add || {} to avoid error
         return store.get(USER_KEY) || {}
     },
     removeUser(){

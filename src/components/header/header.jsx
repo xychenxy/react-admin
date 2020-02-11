@@ -9,13 +9,19 @@ import LinkButton from "../link-button/link-button";
 import { Modal } from 'antd';
 import './index.less'
 
+/*
+    The weather data is provided by open weather
+    https://openweathermap.org/current
+
+ */
+
 class Header extends Component{
 
     state = {
         currentTime: formatDate(Date.now()),
-        main:'',
-        icon_url:'',
-        temp:''
+        main:'', // weather state
+        icon_url:'', // weather image
+        temp:'' // weather temperature
     }
 
     getTime = () =>{
@@ -32,16 +38,11 @@ class Header extends Component{
 
     getTitle = () =>{
         const path = this.props.location.pathname
-        let title
+        let title = ''
         menuList.forEach(item =>{
             if (item.key === path){
                 title = item.title
             }else if (item.children){
-                // item.children.forEach(subItem=>{
-                //     if (path.indexOf(subItem.key)===0){
-                //         title = subItem.title
-                //     }
-                // })
                 const cItem = item.children.find(cItem => cItem.key === path)
                 if(cItem){
                     title = item.title
@@ -78,6 +79,8 @@ class Header extends Component{
         this.getWeather()
     }
 
+
+    // prevent memory lead
     componentWillUnmount() {
         clearInterval(this.intervalId)
     }

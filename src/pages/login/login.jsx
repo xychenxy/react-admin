@@ -34,13 +34,18 @@ class Login extends Component{
             if (!err){
                 // ajax here
                 const {username, password} = values
+                // reqLogin will return data
                 const response = await reqLogin(username, password)
 
                 if(response.status === 0){
                     message.success('Login Success', 2)
                     const user = response.data
+
+                    // save the user in the browser localStorage
                     storageUtils.saveUser(user)
+                    // save the user in the memory
                     memoryUtils.user = user
+
                     this.props.history.replace('/')
                 }else {
                     message.error(response.msg)
@@ -60,6 +65,7 @@ class Login extends Component{
     validator = (rule, value, callback) =>{
         const length = value && value.length
         const pwdReg = /^[a-zA-Z0-9_]+$/
+
         if(!value){
             callback('Please input your password!')
         }else if (length<4){
@@ -69,6 +75,7 @@ class Login extends Component{
         }else if (!pwdReg.test(value)){
             callback("Username should be consisted of letter, number and -")
         }else {
+            // Success
             callback()
         }
     }
@@ -127,13 +134,14 @@ class Login extends Component{
 
                         <Form.Item>
                             <Button type="primary" htmlType="submit" className="login-form-button">
-                                Log in
+                                Login
                             </Button>
                             Or <a href="#">register now!</a>
                         </Form.Item>
 
                     </Form>
                 </section>
+
             </div>
         )
     }

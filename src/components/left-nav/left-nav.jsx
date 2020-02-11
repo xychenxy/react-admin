@@ -15,6 +15,10 @@ class LeftNav extends Component{
         generate <menu> children array
      */
     getMenuNodes_map = (menuList) =>{
+
+        // get current path
+        const path = this.props.location.pathname
+
         return menuList.map(item => {
             if(!item.children){
                 return (
@@ -27,6 +31,12 @@ class LeftNav extends Component{
                     </Menu.Item>
                 )
             }else {
+                // confirm openKey
+                if(item.children.find(cItem => path.indexOf(cItem.key)===0)){
+                    this.openKey = item.key
+                }
+
+
                 return (
                     <SubMenu
                         key={item.key}
@@ -37,9 +47,10 @@ class LeftNav extends Component{
                             </span>
                         }
                     >
-                        {this.getMenuNodes(item.children)}
+                        {this.getMenuNodes_map(item.children)}
                     </SubMenu>
                 )
+
             }
 
         })
@@ -98,7 +109,7 @@ class LeftNav extends Component{
         run this
      */
     componentWillMount() {
-        this.menuNodes = this.getMenuNodes(menuList)
+        this.menuNodes = this.getMenuNodes_map(menuList)
     }
 
 
@@ -110,8 +121,8 @@ class LeftNav extends Component{
             <div>
                 <div className="left-nav">
                     <Link to="/"  className="left-nav-header">
-                        {/*<img src={logo} alt="logo"/>*/}
-                        <h1>XY STUDIO</h1>
+                        <img src={logo} alt="logo"/>
+                        <h1>React</h1>
                     </Link>
 
                     <div style={{ width: '100%' }}>

@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types'
 import {
     Form,
     Select,
@@ -7,9 +8,20 @@ import {
 
 class AddForm extends Component{
 
+    static propTypes = {
+        categories: PropTypes.array.isRequired,
+        parentId: PropTypes.string.isRequired,
+        setForm: PropTypes.func.isRequired
+    }
+
+    // the form convey children to father
+    componentWillMount() {
+        this.props.setForm(this.props.form)
+    }
 
     render(){
         const {getFieldDecorator} = this.props.form
+        const {categories, parentId} = this.props
 
         return(
             <Form>
@@ -18,13 +30,15 @@ class AddForm extends Component{
                     {
                         getFieldDecorator(
                             'parentId',{
-                                initialValue:'0'
+                                initialValue: parentId
                             }
                         )(
                             <Select>
                                 <Select.Option value='0'>Category</Select.Option>
-                                <Select.Option value='1'>Computers</Select.Option>
-                                <Select.Option value='2'>TVs</Select.Option>
+                                {
+                                    categories.map(c => <Select.Option value={c._id}>{c.name}</Select.Option>)
+                                }
+
                             </Select>
                         )
                     }
@@ -34,7 +48,10 @@ class AddForm extends Component{
                     {
                         getFieldDecorator(
                             'categoryName',{
-                                initialValue:''
+                                initialValue:'',
+                                rules:[
+                                    {required:true, message:'Please enter category name'}
+                                ]
                             }
                         )(
                             <Input placeholder='Please enter category name'></Input>
