@@ -1,6 +1,7 @@
  import React, {Component} from 'react';
  import LinkButton from "../../components/link-button/link-button";
- import {reqProducts, reqSearchProducts, reqAddOrUpdateProduct} from "../../api";
+ import {reqProducts, reqSearchProducts, reqUpdateStatus} from "../../api";
+
 
  import {PAGE_SIZE} from "../../utils/constants";
  import {
@@ -45,6 +46,7 @@
                  title: 'Status',
                  // dataIndex: 'status',
                  render: (product) => {
+                     // The product has three status, 1 means available, 2 means not available
                      const {status, _id} = product
                      const newStatus = status===1 ? 2 : 1
                      return (
@@ -53,9 +55,9 @@
                                   type='primary'
                                   onClick={() => this.updateStatus(_id, newStatus)}
                               >
-                                {status===1 ? '下架' : '上架'}
+                                {status===1 ? 'Off sale' : 'On sale'}
                               </Button>
-                              <span>{status===1 ? '在售' : '已下架'}</span>
+                              <span>{status===1 ? 'Available' : 'Not available'}</span>
                         </span>
                      )
                  }
@@ -69,7 +71,7 @@
                             {/*将product对象使用state传递给目标路由组件*/}
                              <LinkButton
                                  onClick={() => this.props.history.push('/product/detail', {product})}>Detail</LinkButton>
-                            <LinkButton
+                             <LinkButton
                                 onClick={() => this.props.history.push('/product/addupdate', product)}>Update</LinkButton>
                         </span>
                      )
@@ -78,7 +80,19 @@
          ];
      }
 
+     updateStatus = async (productId, status) => {
+         const result = await reqUpdateStatus(productId, status)
+         if(result.status===0){
+             message.success("Update product status success")
+             // re-show page, as the status update in backend
+             this.getProducts(this.pageNum)
+         }else {
+             message.error("Update product status fail")
+         }
+     }
+
      getProducts = async (pageNum) => {
+         this.pageNum = pageNum
          let result
          this.setState({loading: true})
          const {searchName, searchType} = this.state

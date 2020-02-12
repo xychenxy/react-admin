@@ -42,3 +42,6 @@ export const reqSearchProducts = ({pageNum, pageSize, searchName, searchType}) =
         pageSize,
         [searchType]: searchName,
     })
+// get the category
+export const reqCategory = (categoryId) => ajax('/manage/category/info', {categoryId})
+export const reqDeleteImg = (name) => ajax( '/manage/img/delete', {name}, 'POST')

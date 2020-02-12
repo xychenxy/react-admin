@@ -114,7 +114,10 @@ class LeftNav extends Component{
 
 
     render(){
-        const selectKey = this.props.location.pathname
+        let selectKey = this.props.location.pathname
+        if(selectKey.indexOf('/product')===0){
+            selectKey = '/product'
+        }
         const openKey = this.openKey
 
         return(
