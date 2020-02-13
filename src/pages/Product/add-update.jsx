@@ -7,8 +7,9 @@ import {
     Cascader,
     Button,
     message,
-    Upload
 } from 'antd'
+import PicturesWall from "./pictures-wall";
+import RichTextEditor from "./rich-text-editor";
 import LinkButton from "../../components/link-button/link-button";
 import {reqCategories, reqAddOrUpdateProduct} from "../../api";
 
@@ -21,6 +22,12 @@ class ProductAddUpdate extends PureComponent{
         options: [],
     }
 
+    constructor(props){
+        super(props)
+        this.pw = React.createRef()
+        this.editor = React.createRef()
+    }
+
     /*
         Customize validator
      */
@@ -31,18 +38,6 @@ class ProductAddUpdate extends PureComponent{
             callback("Price must greater than or equal to 0")
         }
     }
-
-    submit = () =>{
-        // form validation
-        this.props.form.validateFields((err, values) =>{
-            if(!err){
-                message.success("Submit Success")
-            }else {
-                message.error("Submit Fail")
-            }
-        })
-    }
-
 
     /*
         loading product list of the selected item
@@ -97,7 +92,7 @@ class ProductAddUpdate extends PureComponent{
         }
     }
 
-    initOptions = (categories) =>{
+    initOptions = async (categories) =>{
         // According to categories to generate options array
         const options = categories.map(c => ({
             value: c._id,
@@ -105,9 +100,44 @@ class ProductAddUpdate extends PureComponent{
             isLeaf: false // true means don't have subcategory
         }))
 
+        // if it is a sub level ask for update
+        const {isUpdate, product} = this
+        const {pCategoryId} = product
+        if(isUpdate && pCategoryId!=='0'){
+            // get level 2 list
+            const subCategories = await this.getCategories(pCategoryId)
+            const childOptions = subCategories.map(c => (
+                {
+                    value: c._id,
+                    label: c.name,
+                    isLeaf: true
+                }
+            ))
+            const targetOption = options.find(options => options.value===pCategoryId)
+            targetOption.children = childOptions
+        }
+
         // update option state
         this.setState({options})
 
+    }
+
+
+    submit = () =>{
+        // form validation
+        this.props.form.validateFields((err, values) =>{
+            if(!err){
+
+
+                const imgs = this.pw.current.getImgs()
+                const detail = this.editor.current.getDetail()
+
+
+                message.success("Submit Success")
+            }else {
+                message.error("Submit Fail")
+            }
+        })
     }
 
     componentDidMount () {
@@ -115,12 +145,26 @@ class ProductAddUpdate extends PureComponent{
     }
 
     componentWillMount() {
-
-
+        // get the convey state
+        const product = this.props.location.state
+        this.isUpdate = !!product
+        this.product = product || {}
     }
 
-
     render(){
+
+        const {isUpdate, product} = this
+        const {pCategoryId, categoryId, imgs, detail} = product
+        const categoryIds = []
+        if(isUpdate){
+            if (pCategoryId === '0'){
+                categoryIds.push(categoryId)
+            }else {
+                categoryIds.push(pCategoryId)
+                categoryIds.push(categoryId)
+            }
+
+        }
 
         const {getFieldDecorator} = this.props.form
         const formItemLayout = {
@@ -138,7 +182,7 @@ class ProductAddUpdate extends PureComponent{
                   />
                 </LinkButton>
 
-                <span>Add Products</span>
+                <span> {isUpdate ? 'Update Product' : 'Add Products'} </span>
             </span>
         )
 
@@ -149,7 +193,7 @@ class ProductAddUpdate extends PureComponent{
                         {
                             getFieldDecorator('name', {
                                 // initialValue: product.name,
-                                initialValue: 'product.name',
+                                initialValue: product.name,
                                 rules: [
                                     {required: true, message: 'Please enter product name'}
                                 ]
@@ -159,19 +203,18 @@ class ProductAddUpdate extends PureComponent{
                     <Item label="Product Description">
                         {
                             getFieldDecorator('desc', {
-                                initialValue: 'product.desc',
+                                initialValue: product.desc,
                                 rules: [
                                     {required: true, message: 'Please enter product description'}
                                 ]
-                            })(<TextArea placeholder="Please enter product description" autosize={{ minRows: 2, maxRows: 6 }} />)
+                            })(<TextArea placeholder="Please enter product description" autoSize={{ minRows: 2, maxRows: 6 }} />)
                         }
 
                     </Item>
                     <Item label="Product Price">
-
                         {
                             getFieldDecorator('price', {
-                                initialValue: 'product.price',
+                                initialValue: product.price,
                                 rules: [
                                     {required: true, message: 'Please enter product price'},
                                     {validator: this.validatePrice}
@@ -180,16 +223,9 @@ class ProductAddUpdate extends PureComponent{
                         }
                     </Item>
                     <Item label="Product Category">
-                        <Cascader
-                            placeholder='Please select'
-                            options={this.state.options}
-                            loadData={this.loadData}
-                        />
-                    </Item>
-                    <Item label="Product Category">
                         {
                             getFieldDecorator('categoryIds', {
-                                initialValue: 'categoryIds',
+                                initialValue: categoryIds,
                                 rules: [
                                     {required: true, message: 'Please choose product category'},
                                 ]
@@ -203,12 +239,12 @@ class ProductAddUpdate extends PureComponent{
                         }
 
                     </Item>
-                    {/*<Item label="商品图片">*/}
-                    {/*    <PicturesWall ref={this.pw} imgs={imgs}/>*/}
-                    {/*</Item>*/}
-                    {/*<Item label="商品详情" labelCol={{span: 2}} wrapperCol={{span: 20}}>*/}
-                    {/*    <RichTextEditor ref={this.editor} detail={detail}/>*/}
-                    {/*</Item>*/}
+                    <Item label="Product Images">
+                        <PicturesWall ref={this.pw} imgs={imgs}/>
+                    </Item>
+                    <Item label="Product Details" labelCol={{span:4}} wrapperCol={{span:18}}>
+                        <RichTextEditor ref={this.editor} detail={detail}/>
+                    </Item>
                     <Item>
                         <Button type='primary' onClick={this.submit}>Submit</Button>
                     </Item>
