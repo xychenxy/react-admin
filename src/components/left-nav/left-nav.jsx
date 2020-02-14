@@ -5,6 +5,8 @@ import { Menu, Icon } from 'antd';
 import logo from '../../assets/images/logo.png'
 import './index.less'
 import menuList from "../../config/menuConfig";
+import memoryUtils from "../../utils/memoryUtils";
+import user from "../../pages/user/user";
 
 const { SubMenu } = Menu;
 
@@ -20,42 +22,66 @@ class LeftNav extends Component{
         const path = this.props.location.pathname
 
         return menuList.map(item => {
-            if(!item.children){
-                return (
-                    <Menu.Item
-                        key={item.key}>
-                        <Link to={item.key}>
-                            <Icon type={item.icon}/>
-                            <span>{item.title}</span>
-                        </Link>
-                    </Menu.Item>
-                )
-            }else {
-                // confirm openKey
-                if(item.children.find(cItem => path.indexOf(cItem.key)===0)){
-                    this.openKey = item.key
-                }
+            // check if user has authorize right to visit this menu
+            if(this.hasAuth(item)){
+                if(!item.children){
+                    return (
+                        <Menu.Item
+                            key={item.key}>
+                            <Link to={item.key}>
+                                <Icon type={item.icon}/>
+                                <span>{item.title}</span>
+                            </Link>
+                        </Menu.Item>
+                    )
+                }else {
+                    // confirm openKey
+                    if(item.children.find(cItem => path.indexOf(cItem.key)===0)){
+                        this.openKey = item.key
+                    }
 
 
-                return (
-                    <SubMenu
-                        key={item.key}
-                        title={
-                            <span>
+                    return (
+                        <SubMenu
+                            key={item.key}
+                            title={
+                                <span>
                                 <Icon type={item.icon}/>
                                 <span>{item.title}</span>
                             </span>
-                        }
-                    >
-                        {this.getMenuNodes_map(item.children)}
-                    </SubMenu>
-                )
+                            }
+                        >
+                            {this.getMenuNodes_map(item.children)}
+                        </SubMenu>
+                    )
 
+                }
             }
-
         })
     }
 
+    /**
+     * 1. admin has rights to visit all.
+     * 2. the menus exist in the user's key
+     * 3. all the users can visit home
+     * @param item
+     */
+    hasAuth = (item) =>{
+        const {key, isPublic} = item
+        const menus = memoryUtils.user.role.menus
+        const username = memoryUtils.user.username
+
+        if(username==='admin' || isPublic || menus.indexOf(key)!==-1){
+            return true
+        }else if(item.children){
+            return !!item.children.find(child => menus.indexOf(child.key)!==-1)
+        }
+
+        return false
+
+
+
+    }
 
     /*
         generate by reduce

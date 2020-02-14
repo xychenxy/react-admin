@@ -119,6 +119,7 @@ export default class Role extends Component{
                 memoryUtils.user = {}
                 storageUtils.removeUser()
                 this.props.history.replace('/login')
+                message.success("Update authorization success!")
             }else {
                 message.success("Update authorization success!")
                 this.getRoles()
@@ -162,7 +163,7 @@ export default class Role extends Component{
                     rowSelection={{
                         type: 'radio',
                         selectedRowKeys: [role._id],
-                        onSelect: (role) => { // 选择某个radio时回调
+                        onSelect: (role) => { 
                             this.setState({
                                 role
                             })
