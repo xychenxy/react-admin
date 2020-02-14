@@ -125,12 +125,39 @@ class ProductAddUpdate extends PureComponent{
 
     submit = () =>{
         // form validation
-        this.props.form.validateFields((err, values) =>{
+        this.props.form.validateFields(async (err, values) =>{
             if(!err){
 
-
+                // 1. collect data
+                const {name, desc, price, categoryIds} = values
+                let pCategoryId, categoryId
                 const imgs = this.pw.current.getImgs()
                 const detail = this.editor.current.getDetail()
+
+                if(categoryIds.length === 1){
+                    pCategoryId = '0'
+                    categoryId = categoryIds[0]
+                }else {
+                    pCategoryId = categoryIds[0]
+                    categoryId = categoryIds[1]
+                }
+
+                const product = {name, desc, price, imgs, detail, pCategoryId, categoryId}
+
+                if(this.isUpdate){
+                    product._id = this.product._id
+                }
+
+                // 2. send request
+                const result = await reqAddOrUpdateProduct(product)
+
+                // 3. handle response
+                if (result.status===0) {
+                    message.success(`${this.isUpdate ? 'Update' : 'Add'} product success!`)
+                    this.props.history.goBack()
+                } else {
+                    message.error(`${this.isUpdate ? 'Update' : 'Add'} product fail!`)
+                }
 
 
                 message.success("Submit Success")
