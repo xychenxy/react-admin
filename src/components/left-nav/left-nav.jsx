@@ -5,8 +5,8 @@ import { Menu, Icon } from 'antd';
 import logo from '../../assets/images/logo.png'
 import './index.less'
 import menuList from "../../config/menuConfig";
-import memoryUtils from "../../utils/memoryUtils";
-import user from "../../pages/user/user";
+import {connect} from 'react-redux'
+import {setHeadTitle} from '../../redux/actions'
 
 const { SubMenu } = Menu;
 
@@ -24,11 +24,15 @@ class LeftNav extends Component{
         return menuList.map(item => {
             // check if user has authorize right to visit this menu
             if(this.hasAuth(item)){
+
                 if(!item.children){
+                    if(item.key===path || path.indexOf(item.key)===0){
+                        this.props.setHeadTitle(item.title)
+                    }
                     return (
                         <Menu.Item
                             key={item.key}>
-                            <Link to={item.key}>
+                            <Link to={item.key} onClick={() => this.props.setHeadTitle(item.title)}>
                                 <Icon type={item.icon}/>
                                 <span>{item.title}</span>
                             </Link>
@@ -68,8 +72,8 @@ class LeftNav extends Component{
      */
     hasAuth = (item) =>{
         const {key, isPublic} = item
-        const menus = memoryUtils.user.role.menus
-        const username = memoryUtils.user.username
+        const menus = this.props.user.role.menus
+        const username = this.props.user.username
 
         if(username==='admin' || isPublic || menus.indexOf(key)!==-1){
             return true
@@ -177,4 +181,7 @@ class LeftNav extends Component{
 }
 
 
-export default withRouter(LeftNav)
+export default connect(
+    state => ({user:state.user}),
+    {setHeadTitle}
+)(withRouter(LeftNav))

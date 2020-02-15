@@ -10,12 +10,12 @@ import {PAGE_SIZE} from "../../utils/constants";
 import {reqRoles, reqAddRole, reqUpdateRole} from "../../api";
 import AddForm from './add-form'
 import AuthForm from './auth-form'
-import memoryUtils from "../../utils/memoryUtils";
-import storageUtils from "../../utils/storageUtils";
 import {formatDate} from "../../utils/dateUtils";
+import {connect} from 'react-redux'
+import {logout} from "../../redux/actions";
 
 
-export default class Role extends Component{
+class Role extends Component{
 
     constructor(props){
         super(props)
@@ -109,16 +109,14 @@ export default class Role extends Component{
         const menus = this.auth.current.getMenus()
         role.menus = menus
         role.auth_time = Date.now()
-        role.auth_name = memoryUtils.user.username
+        role.auth_name = this.props.user.username
         const result = await reqUpdateRole(role)
 
         // 3. handle the response
         if (result.status===0) {
             // check if update itself
-            if(role._id === memoryUtils.user.role_id){
-                memoryUtils.user = {}
-                storageUtils.removeUser()
-                this.props.history.replace('/login')
+            if(role._id === this.props.user.role_id){
+                this.props.logout()
                 message.success("Update authorization success!")
             }else {
                 message.success("Update authorization success!")
@@ -203,3 +201,8 @@ export default class Role extends Component{
         )
     }
 }
+
+export default connect(
+    state => ({user:state.user}),
+    {logout}
+)(Role)

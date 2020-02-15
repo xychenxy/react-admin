@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Redirect, Switch, Route} from 'react-router-dom'
-import memoryUtils from "../../utils/memoryUtils";
+import {connect} from 'react-redux'
+
 import LeftNav from "../../components/left-nav/left-nav";
 import Header from "../../components/header/header";
 import { Layout } from 'antd';
@@ -16,6 +17,7 @@ import Pie from "../charts/pie"
 
 
 
+
 const {
     Footer,
     Sider,
@@ -24,7 +26,7 @@ const {
 
 
 
-export default class Admin extends Component{
+class Admin extends Component{
 
     state = {
         collapsed: false,
@@ -38,7 +40,7 @@ export default class Admin extends Component{
     render(){
 
         // check if login
-        const user = memoryUtils.user
+        const user = this.props.user
         if(!user || !user._id){
             // redirect to login page
             return <Redirect to='/login/' />
@@ -70,3 +72,8 @@ export default class Admin extends Component{
         )
     }
 }
+
+export default connect(
+    state => ({user:state.user}),
+    {}
+)(Admin)

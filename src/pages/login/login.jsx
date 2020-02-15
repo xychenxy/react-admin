@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom'
-import {reqLogin} from '../../api'
 import memoryUtils from "../../utils/memoryUtils";
-import storageUtils from "../../utils/storageUtils";
 import {
     Form,
     Input,
@@ -10,6 +8,9 @@ import {
     Button,
     message
 } from 'antd'
+import {connect} from 'react-redux'
+import {login} from "../../redux/actions";
+
 import logo from './images/logo.png'
 import './login.less'
 
@@ -32,24 +33,8 @@ class Login extends Component{
 
         this.props.form.validateFields(async (err, values)=>{
             if (!err){
-                // ajax here
                 const {username, password} = values
-                // reqLogin will return data
-                const response = await reqLogin(username, password)
-
-                if(response.status === 0){
-                    message.success('Login Success', 2)
-                    const user = response.data
-
-                    // save the user in the browser localStorage
-                    storageUtils.saveUser(user)
-                    // save the user in the memory
-                    memoryUtils.user = user
-
-                    this.props.history.replace('/')
-                }else {
-                    message.error(response.msg)
-                }
+                this.props.login(username, password)
             }else {
                 // console.log(err)
             }
@@ -82,8 +67,9 @@ class Login extends Component{
 
 
     render(){
+        const user = this.props.user
         // check if login
-        if (memoryUtils.user && memoryUtils.user._id) {
+        if (user && user._id) {
             return <Redirect to='/'/>
         }
 
@@ -154,4 +140,7 @@ class Login extends Component{
  * @type {ConnectedComponentClass<Login, Omit<FormComponentProps<any>, keyof WrappedFormInternalProps>>}
  */
 
-export default Form.create()(Login)
+export default connect(
+    state => ({user:state.user}),
+    {login}
+)(Form.create()(Login))
