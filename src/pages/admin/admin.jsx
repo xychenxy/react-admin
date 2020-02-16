@@ -13,6 +13,7 @@ import User from "../user/user";
 import Bar from "../charts/bar";
 import Line from "../charts/line";
 import Pie from "../charts/pie"
+import NotFound from '../not-found/not-found'
 
 
 
@@ -55,6 +56,7 @@ class Admin extends Component{
                     <Header/>
                     <Content style={{margin:'20px 20px 0px',backgroundColor: 'white'}}>
                         <Switch>
+                            <Redirect exact from='/' to='/home'/>
                             <Route path='/home' component={Home}/>
                             <Route path='/category' component={Category}/>
                             <Route path='/product' component={Product}/>
@@ -63,7 +65,7 @@ class Admin extends Component{
                             <Route path="/charts/bar" component={Bar}/>
                             <Route path="/charts/pie" component={Pie}/>
                             <Route path="/charts/line" component={Line}/>
-                            <Redirect to='/home'/>
+                            <Route component={NotFound}/>
                         </Switch>
                     </Content>
                     <Footer style={{textAlign: 'center', color: '#aaaaaa'}}>XY STUDIO@COPY RIGHT</Footer>
