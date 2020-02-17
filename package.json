@@ -26,7 +26,8 @@
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.8",
     "redux-thunk": "^2.3.0",
-    "store": "^2.0.12"
+    "store": "^2.0.12",
+    "webpack": "^4.41.6"
   },
   "scripts": {
     "start": "react-app-rewired start",
